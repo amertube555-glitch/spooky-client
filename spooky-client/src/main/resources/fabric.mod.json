@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"id": "spookyclient",
+	"version": "${version}",
+	"name": "Spooky Client",
+	"description": "Render-only utility client.",
+	"authors": ["amertube555-glitch"],
+	"license": "All-Rights-Reserved",
+	"icon": "assets/spookyclient/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": ["com.spooky.SpookyClient"],
+		"client": ["com.spooky.client.SpookyClientClient"]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
