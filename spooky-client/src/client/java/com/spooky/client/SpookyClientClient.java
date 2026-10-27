@@ -34,13 +34,13 @@ public class SpookyClientClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (menuKey.consumeClick()) {
-				if (client.screen == null) client.setScreen(new ClickGui());
+				if (client.gui.screen() == null) client.gui.setScreen(new ClickGui());
 			}
 			// Panic is silent on purpose: everything off, menu closed, no message.
 			while (panicKey.consumeClick()) {
 				Modules.panic();
 				Config.save();
-				if (client.screen instanceof ClickGui) client.setScreen(null);
+				if (client.gui.screen() instanceof ClickGui) client.gui.setScreen(null);
 			}
 		});
 
