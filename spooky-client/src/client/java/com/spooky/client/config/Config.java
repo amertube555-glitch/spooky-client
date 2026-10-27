@@ -35,6 +35,7 @@ public final class Config {
 			String en = props.getProperty(m.id + ".enabled");
 			if (en != null) m.enabled = Boolean.parseBoolean(en.trim());
 			for (Setting s : m.settings) {
+				if (s instanceof Setting.Header) continue;
 				String v = props.getProperty(key(m, s));
 				if (v != null) s.load(v);
 			}
@@ -46,6 +47,7 @@ public final class Config {
 		for (Module m : Modules.ALL) {
 			props.setProperty(m.id + ".enabled", Boolean.toString(m.enabled));
 			for (Setting s : m.settings) {
+				if (s instanceof Setting.Header) continue;
 				props.setProperty(key(m, s), s.save());
 			}
 		}

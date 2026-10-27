@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.spooky.SpookyClient;
 import com.spooky.client.config.Config;
 import com.spooky.client.gui.ClickGui;
+import com.spooky.client.module.ChunkFinder;
 import com.spooky.client.module.Modules;
 import com.spooky.client.module.StorageEsp;
 import net.fabricmc.api.ClientModInitializer;
@@ -36,30 +37,42 @@ public class SpookyClientClient implements ClientModInitializer {
 			while (menuKey.consumeClick()) {
 				if (client.gui.screen() == null) client.gui.setScreen(new ClickGui());
 			}
-			// Panic is silent on purpose: everything off, menu closed, no message.
+			// Panic is silent: everything off, menu closed, no message.
 			while (panicKey.consumeClick()) {
 				Modules.panic();
 				Config.save();
 				if (client.gui.screen() instanceof ClickGui) client.gui.setScreen(null);
 			}
+			Modules.CHUNK_FINDER.tick();
+			Modules.TRAILS.tick();
+			Modules.ALERTS.tick();
 		});
 
-		// Keep a list of storage blocks the server has sent us.
-		ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register(StorageEsp::onLoad);
-		ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register(StorageEsp::onUnload);
+		ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, level) -> {
+			StorageEsp.onLoad(be, level);
+			ChunkFinder.onLoad(be, level);
+		});
+		ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((be, level) -> {
+			StorageEsp.onUnload(be, level);
+			ChunkFinder.onUnload(be, level);
+		});
 
-		// World drawing (through-walls boxes and lines).
 		LevelRenderEvents.BEFORE_GIZMOS.register(context -> {
 			Modules.PLAYER_ESP.renderWorld();
 			Modules.STORAGE_ESP.renderWorld();
+			Modules.CHUNK_FINDER.renderWorld();
+			Modules.TRAILS.renderWorld();
 		});
 
-		// Screen drawing (radar).
 		HudElementRegistry.attachElementBefore(
 				VanillaHudElements.CHAT,
-				Identifier.fromNamespaceAndPath(SpookyClient.MOD_ID, "radar"),
-				(graphics, deltaTracker) -> Modules.RADAR.render(graphics));
+				Identifier.fromNamespaceAndPath(SpookyClient.MOD_ID, "overlay"),
+				(graphics, deltaTracker) -> {
+					Modules.RADAR.render(graphics);
+					Modules.ALERTS.render(graphics);
+					Modules.TRAILS.renderHud(graphics);
+				});
 
-		SpookyClient.LOGGER.info("spooky-client: client init OK (stage 2: menu, Player ESP, Storage ESP, Radar)");
+		SpookyClient.LOGGER.info("spooky-client: client init OK (stage 3)");
 	}
 }

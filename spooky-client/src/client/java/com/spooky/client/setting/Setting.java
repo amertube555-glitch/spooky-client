@@ -12,6 +12,22 @@ public abstract class Setting {
 
 	public abstract void load(String text);
 
+	/** A section title in the menu. Holds no value. */
+	public static final class Header extends Setting {
+		public Header(String name) {
+			super(name);
+		}
+
+		@Override
+		public String save() {
+			return "";
+		}
+
+		@Override
+		public void load(String text) {
+		}
+	}
+
 	public static final class Bool extends Setting {
 		public boolean value;
 
